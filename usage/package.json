@@ -1,0 +1,43 @@
+{
+  "name": "dsh-plugin-usage",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Balance, spend, and token usage for the providers this Harness routes to.",
+  "icon": "./icon.svg",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json",
+    "./locale/en.json": "./locale/en.json",
+    "./typert": "./lib/typert.host.js"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "lib",
+    "cordis.patch.yml",
+    "icon.svg",
+    "locale/*.json",
+    "README.md"
+  ],
+  "scripts": {
+    "sync-test-deps": "node tools/sync-test-deps.mjs",
+    "test": "node tools/sync-test-deps.mjs && node --import ./tests/loader.mjs --test tests/*.test.js",
+    "report": "node tools/report.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout"
+      ]
+    }
+  },
+  "dependencies": {}
+}

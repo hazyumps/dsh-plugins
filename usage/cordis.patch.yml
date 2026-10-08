@@ -1,0 +1,6 @@
+# Usage: a Host service that reads the provider balance over the API key and
+# scans the Harness's own session logs for token usage, plus a browser half that
+# owns the sidebar entry and the report page.
+- insert:
+    - id: usage
+      name: dsh-plugin-usage

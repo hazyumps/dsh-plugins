@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "MCP",
+    "description": "The MCP servers this Harness is connected to — transport, status, and the tools they expose."
+  }
+}

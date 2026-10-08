@@ -1,0 +1,8 @@
+# Scheduled tasks: a Host service that owns its own task store and, when a task
+# is due, starts a NEW session with the task's model, thinking level, and agent
+# preset, then sends the task prompt. The Client half owns the sidebar entry,
+# the task list, and the editor form.
+
+- insert:
+    - id: scheduled-tasks
+      name: dsh-plugin-scheduled-tasks

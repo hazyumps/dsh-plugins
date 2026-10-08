@@ -1,0 +1,5 @@
+# MCP: a Host service that reads the Loader's MCP client rows and the tool
+# registry, plus a browser half that owns the sidebar entry and the server page.
+- insert:
+    - id: mcp
+      name: dsh-plugin-mcp

@@ -1,0 +1,5 @@
+.DS_Store
+*.log
+
+# Each plugin keeps its own .gitignore for its build and test artifacts.
+node_modules/

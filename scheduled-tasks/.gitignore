@@ -1,0 +1,5 @@
+node_modules/
+tests/.fixtures/
+*.log
+.DS_Store
+.pnpm-store/

@@ -1,0 +1,44 @@
+{
+  "name": "dsh-plugin-scheduled-tasks",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Scheduled tasks that start a fresh session with a chosen model, thinking level, and agent preset, then send the prompt.",
+  "icon": "./icon.svg",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json",
+    "./locale/en.json": "./locale/en.json",
+    "./typert": "./lib/typert.host.js"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "lib",
+    "cordis.patch.yml",
+    "icon.svg",
+    "locale/*.json",
+    "README.md"
+  ],
+  "scripts": {
+    "sync-test-deps": "node tools/sync-test-deps.mjs",
+    "test": "node tools/sync-test-deps.mjs && node --import ./tests/loader.mjs --test tests/*.test.js"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout"
+      ]
+    }
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
+}

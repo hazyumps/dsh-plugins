@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Scheduled tasks",
+    "description": "Run a prompt on a schedule in a fresh session, with its own model, thinking level, and agent."
+  }
+}
