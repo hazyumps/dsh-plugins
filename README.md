@@ -19,7 +19,7 @@ In the DSH Web sidebar: **Plugins → Add plugin**, give it the absolute path to
 the plugin folder, then **Install** and **Enable now**.
 
 ```
-/Users/patrick/repo/dsh-plugins/scheduled-tasks
+/Users/you/repo/dsh-plugins/scheduled-tasks
 ```
 
 A local path installs as a link, so edits to the source are picked up on the

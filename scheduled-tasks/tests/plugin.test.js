@@ -50,9 +50,9 @@ function createHarness() {
     provide: (key, service) => provided.set(key, service),
     workspaceRegistry: {
       list: () => [
-        { id: 'ws-1', title: 'nst', path: '/Users/patrick/repo/nst', sessionIds: [] },
+        { id: 'ws-1', title: 'example', path: '/Users/you/repo/example', sessionIds: [] },
       ],
-      get: (id) => (id === 'ws-1' ? { id: 'ws-1', path: '/Users/patrick/repo/nst' } : undefined),
+      get: (id) => (id === 'ws-1' ? { id: 'ws-1', path: '/Users/you/repo/example' } : undefined),
       // Only the seeded project directory is owned by a workspace.
       resolveByPath: async (path) => (
         path === '/tmp/workspace' ? { id: 'ws-1' } : undefined

@@ -559,14 +559,14 @@ right now (maybe installed by hand, or toggled elsewhere). Use it as a
 - **Loader rows accept an absolute path as `name`** ("Module specifier
   imported by the loader", `@cordisjs/plugin-loader` README Entry Options).
   Proof in the user's own home patch: `~/.dsh/cordis.patch.yml` inserts
-  `gaia-cortex` with `name: /Users/patrick/repo/gaia/tools/dsh-cortex/index.mjs`.
+  `gaia-cortex` with `name: /Users/you/repo/gaia/tools/dsh-cortex/index.mjs`.
   So during development:
 
   ```yaml
   # ~/.dsh/cordis.patch.yml (outside the gaia markers) or profiles/desktop/cordis.patch.yml
   - insert:
       - id: usage
-        name: /Users/patrick/repo/dsh-plugins/dsh-plugin-usage/lib/index.mjs
+        name: /Users/you/repo/dsh-plugins/dsh-plugin-usage/lib/index.mjs
   ```
 
   …pointing at a plain-ESM entry; no install needed, edits reload on restart

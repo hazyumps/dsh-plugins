@@ -12,7 +12,7 @@ function row(overrides = {}) {
     enabled: true,
     phase: 'active',
     transport: 'http',
-    target: 'http://10.1.3.200:8043/mcp',
+    target: 'http://192.0.2.10:8043/mcp',
     authenticated: false,
     timeoutMs: 120000,
     toolPrefix: 'mcp__unraid',

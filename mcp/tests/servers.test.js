@@ -34,7 +34,7 @@ function entry(overrides = {}) {
       config: {
         serverName: 'unraid',
         transport: 'streamable-http',
-        url: 'http://10.1.3.200:8043/mcp',
+        url: 'http://192.0.2.10:8043/mcp',
         toolCallTimeoutMs: 120000,
       },
     },
@@ -68,7 +68,7 @@ test('rows keep Loader order and are read into the panel shape', () => {
     enabled: true,
     phase: 'active',
     transport: 'http',
-    target: 'http://10.1.3.200:8043/mcp',
+    target: 'http://192.0.2.10:8043/mcp',
     authenticated: false,
     timeoutMs: 120000,
     toolPrefix: 'mcp__unraid',
@@ -90,7 +90,7 @@ test('the payload the Host returns satisfies its own strict codec', () => {
 test('non-MCP rows and structural groups are ignored', () => {
   const ctx = fakeCtx({
     entries: [
-      { options: { id: 'gaia-cortex', name: '/Users/patrick/repo/gaia/tools/dsh-cortex/index.mjs' }, fiber: { state: 2 } },
+      { options: { id: 'gaia-cortex', name: '/Users/you/repo/gaia/tools/dsh-cortex/index.mjs' }, fiber: { state: 2 } },
       { options: { id: 'gaia-roles', name: 'group', group: true }, fiber: { state: 2 } },
       entry(),
     ],
@@ -104,8 +104,8 @@ test('disabled, failed and statusless rows report honestly', () => {
   const ctx = fakeCtx({
     entries: [
       entry({ disabled: true, fiber: { state: 0 } }),
-      entry({ options: { id: 'gaia-mcp-diagram', name: '@deepseek-ai/dsh-mcp-client', config: { serverName: 'diagram', transport: 'streamable-http', url: 'http://10.1.3.201:8023/mcp' } } , fiber: { state: 3 } }),
-      entry({ options: { id: 'gaia-mcp-search', name: '@deepseek-ai/dsh-mcp-client', config: { serverName: 'search', transport: 'streamable-http', url: 'http://10.1.3.201:8027/mcp' } }, fiber: undefined }),
+      entry({ options: { id: 'gaia-mcp-diagram', name: '@deepseek-ai/dsh-mcp-client', config: { serverName: 'diagram', transport: 'streamable-http', url: 'http://192.0.2.11:8023/mcp' } } , fiber: { state: 3 } }),
+      entry({ options: { id: 'gaia-mcp-search', name: '@deepseek-ai/dsh-mcp-client', config: { serverName: 'search', transport: 'streamable-http', url: 'http://192.0.2.11:8027/mcp' } }, fiber: undefined }),
     ],
   });
 
@@ -128,7 +128,7 @@ test('a credential in the row config never reaches the payload', () => {
         config: {
           serverName: 'affine',
           transport: 'streamable-http',
-          url: 'http://10.1.3.202:8029/mcp',
+          url: 'http://192.0.2.12:8029/mcp',
           headers: { Authorization: 'Bearer 665cbc108b5b823d29eb77d1d1e5e5f4a950ee60006bb4f9749dc612631ca245' },
         },
       },
@@ -200,7 +200,7 @@ test('transport mapping and endpoint extraction', () => {
 });
 
 test('a long endpoint is elided rather than wrapping the card', () => {
-  const long = `http://10.1.3.200:8043/${'x'.repeat(300)}`;
+  const long = `http://192.0.2.10:8043/${'x'.repeat(300)}`;
   const target = targetOf('http', { url: long });
   assert.equal(target.length, 160);
   assert.ok(target.endsWith('…'));

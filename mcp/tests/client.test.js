@@ -140,7 +140,7 @@ function row(overrides = {}) {
     enabled: true,
     phase: 'active',
     transport: 'http',
-    target: 'http://10.1.3.200:8043/mcp',
+    target: 'http://192.0.2.10:8043/mcp',
     authenticated: false,
     timeoutMs: 120000,
     toolPrefix: 'mcp__unraid',
@@ -202,7 +202,7 @@ test('the page renders every field the Host sends', () => {
     generatedAt: 1_760_000_000_000,
     servers: [
       row(),
-      row({ id: 'gaia-mcp-affine', serverName: 'affine', transport: 'http', target: 'http://10.1.3.202:8029/mcp', authenticated: true, toolCount: 26 }),
+      row({ id: 'gaia-mcp-affine', serverName: 'affine', transport: 'http', target: 'http://192.0.2.12:8029/mcp', authenticated: true, toolCount: 26 }),
       row({ id: 'gaia-mcp-wharf', serverName: 'wharf', phase: 'failed', enabled: false, toolCount: null, target: '' }),
       row({ id: 'gaia-mcp-quiet', serverName: 'quiet', phase: 'pending', toolCount: 0 }),
     ],

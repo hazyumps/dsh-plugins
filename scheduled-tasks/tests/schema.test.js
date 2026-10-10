@@ -221,7 +221,7 @@ describe('the Host manifest', () => {
 
 describe('settings and the document', () => {
   const SETTINGS = {
-    cwd: '/Users/patrick/repo/nst',
+    cwd: '/Users/you/repo/example',
     workspaceId: '',
     provider: 'gaia-local',
     model: 'Spark',
@@ -262,7 +262,7 @@ describe('settings and the document', () => {
 describe('the workspace list', () => {
   it('accepts what the registry projection returns', () => {
     const parsed = workspaceListResult.parse({
-      workspaces: [{ id: 'ws-1', title: 'nst', path: '/Users/patrick/repo/nst' }],
+      workspaces: [{ id: 'ws-1', title: 'example', path: '/Users/you/repo/example' }],
     });
     assert.equal(parsed.workspaces[0].title, 'nst');
   });

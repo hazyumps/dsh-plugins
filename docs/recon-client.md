@@ -4,7 +4,7 @@ Ground truth: the **installed** Electron asar at
 `/Applications/DeepSeek Harness.app/Contents/Resources/app.asar`,
 packages under `/dsh/node_modules/@deepseek-ai/`.
 Recon date 2026-10-07. The source checkout
-`/Users/patrick/repo/deepseek-harness` (2026-08-15) is older and lacks
+`/Users/you/repo/deepseek-harness` (2026-08-15) is older and lacks
 `ui-schedule` — do not use it for these APIs.
 
 Extraction (shell tools cannot read the asar directly):

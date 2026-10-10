@@ -14,7 +14,7 @@ function counter(values) {
 /** A scan that produced usage on two providers and two days. */
 function scan() {
   return {
-    root: '/Users/patrick/.dsh/sessions',
+    root: '/Users/you/.dsh/sessions',
     files: 2,
     sessions: 2,
     bytes: 2048,

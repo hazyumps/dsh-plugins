@@ -22,7 +22,7 @@ In the DSH Web sidebar: **Plugins → Add plugin**, give it this folder's absolu
 path, then **Install** and **Enable now**.
 
 ```
-/Users/patrick/repo/dsh-plugins/usage
+/Users/you/repo/dsh-plugins/usage
 ```
 
 A local path installs as a link, so edits are picked up on the next Host restart.

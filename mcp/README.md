@@ -6,7 +6,7 @@ Every MCP server this Harness is composed with, as a sidebar panel: **MCP**.
 [🔍] Search      [active]        [◈] Unraid      [active]
      Web search and page reading      The NAS: array, containers, VMs
      search · HTTP                    unraid · HTTP
-     http://10.1.3.201:8027/mcp       http://10.1.3.200:8043/mcp
+     http://192.0.2.11:8027/mcp       http://192.0.2.10:8043/mcp
      5 tools · 180s timeout           126 tools · 120s timeout
 ```
 
@@ -20,7 +20,7 @@ In the DSH Web sidebar: **Plugins → Add plugin**, give it this folder's
 absolute path, then **Install** and **Enable now**.
 
 ```
-/Users/patrick/repo/dsh-plugins/mcp
+/Users/you/repo/dsh-plugins/mcp
 ```
 
 A local path installs as a link, so edits are picked up on the next Host
