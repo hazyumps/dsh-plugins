@@ -94,6 +94,8 @@ function buildSchedule(identity, rule, now) {
  * @param options.target - `{ provider, model, effort, preset }` for the new session.
  * @param options.enabled - Whether the job is scheduled at all.
  * @param options.defaultTarget - Target values used for absent fields.
+ * @param options.workspaceId - Workspace this task's runs join; empty inherits
+ *   the plugin setting.
  * @param options.now - Current wall-clock instant in milliseconds.
  * @returns A frozen job record.
  */
@@ -119,6 +121,7 @@ export function createJob(options) {
     target: normalizeTarget(target, options.defaultTarget ?? {
       provider: '', model: '', effort: '', preset: '',
     }),
+    workspaceId: typeof options.workspaceId === 'string' ? options.workspaceId.trim() : '',
     createdAt: new Date(now).toISOString(),
     updatedAt: new Date(now).toISOString(),
     lastRun: null,

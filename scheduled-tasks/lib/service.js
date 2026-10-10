@@ -126,6 +126,7 @@ export function createService(options) {
           target: request.target,
           enabled: request.enabled,
           defaultTarget: defaults().target,
+          workspaceId: request.workspaceId,
           now: now(),
         });
         const stored = request.cwd === undefined ? job : { ...job, cwd: request.cwd };
@@ -158,6 +159,9 @@ export function createService(options) {
           enabled: request.enabled ?? job.enabled,
           schedule: { ...job.schedule, prompt },
           target: normalizeTarget(request.target ?? job.target, job.target),
+          workspaceId: request.workspaceId === undefined
+            ? job.workspaceId
+            : request.workspaceId.trim(),
           updatedAt: new Date(now()).toISOString(),
         };
         if (request.rule !== undefined) {

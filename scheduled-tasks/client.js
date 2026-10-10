@@ -128,6 +128,8 @@ window.__ModuleLoader__.load({
       'field.effort': 'Thinking level',
       'field.agent': 'Agent',
       'field.agentHint': 'The agent preset the new session starts with.',
+      'field.workspace': 'Workspace',
+      'field.workspaceHint': 'Where this task’s sessions are filed. Inherit uses the plugin setting.',
       'field.prompt': 'Prompt',
       'field.promptHint': 'Sent as the first message of the new session.',
       'field.enabled': 'Enabled',
@@ -145,6 +147,7 @@ window.__ModuleLoader__.load({
       'option.providerDefault': 'Provider default',
       'option.defaultAgent': 'Default agent',
       'option.noWorkspace': 'None (use the directory below)',
+      'option.inheritWorkspace': 'Inherit the plugin setting',
 
       'type.daily': 'Daily',
       'type.weekdays': 'Weekdays (Mon–Fri)',
@@ -649,8 +652,16 @@ window.__ModuleLoader__.load({
      * An empty target is legitimate now — the Host falls back to the plugin's
      * own settings — so it says so rather than rendering a blank cell.
      */
-    function targetMeta(target, t) {
-      if (target === null || target === undefined) return t('target.inherited');
+    /**
+     * The per-task parts of the muted line under the model name.
+     *
+     * Returns them separately rather than a joined string, because the row also
+     * appends the task's own workspace when it names one.
+     *
+     * @returns An array, empty when the target is entirely inherited.
+     */
+    function targetMetaParts(target, t) {
+      if (target === null || target === undefined) return [];
       const parts = [];
       if (typeof target.effort === 'string' && target.effort.length > 0) {
         parts.push(`${t('field.effort')}: ${target.effort}`);
@@ -658,7 +669,7 @@ window.__ModuleLoader__.load({
       if (typeof target.preset === 'string' && target.preset.length > 0) {
         parts.push(`${t('field.agent')}: ${target.preset}`);
       }
-      return parts.length === 0 ? t('target.inherited') : parts.join(' · ');
+      return parts;
     }
 
     /** @returns a single label for the last run, with its error when it failed. */
@@ -760,6 +771,9 @@ window.__ModuleLoader__.load({
         model: '',
         effort: '',
         preset: '',
+        // Empty means "inherit the plugin setting", which is the default for a
+        // new task and for every task stored before the field existed.
+        workspaceId: '',
         prompt: '',
         enabled: true,
       };
@@ -794,6 +808,8 @@ window.__ModuleLoader__.load({
         model: typeof target.model === 'string' ? target.model : '',
         effort: typeof target.effort === 'string' ? target.effort : '',
         preset: typeof target.preset === 'string' ? target.preset : '',
+        // A task stored before this field existed carries no key at all.
+        workspaceId: typeof task.workspaceId === 'string' ? task.workspaceId : '',
         prompt: typeof schedule.prompt === 'string' ? schedule.prompt : '',
         enabled: task.enabled !== false,
       };
@@ -1576,6 +1592,10 @@ window.__ModuleLoader__.load({
           rule: buildRule(current),
           target: buildTarget(current, reasoningOf(current.provider, current.model)),
           enabled: current.enabled,
+          // Sent even when empty, so choosing "Inherit the plugin setting"
+          // really clears a stored workspace: the Host only keeps the stored
+          // value for an *absent* field.
+          workspaceId: current.workspaceId,
         };
         const result = creating
           ? await api.tasks.call('create', body)
@@ -1712,13 +1732,79 @@ window.__ModuleLoader__.load({
           }, options), hint, 'agent');
       }
 
+      /**
+       * Workspace options, shared by the task editor and the Settings tab; only
+       * the "nothing chosen" label differs between them.
+       *
+       * @param emptyLabel - Text for the empty choice, which means "inherit".
+       * @param currentId - The value being edited.
+       */
+      function workspaceOptions(emptyLabel, currentId) {
+        const options = [h('option', { key: '', value: '' }, emptyLabel)];
+        for (const workspace of workspaceList) {
+          options.push(h('option', { key: workspace.id, value: workspace.id },
+            workspace.title || workspace.path || workspace.id));
+        }
+        // Keep a stored workspace the registry no longer lists selectable, so
+        // opening the form cannot silently drop it.
+        if (currentId.length > 0 && !workspaceList.some((workspace) => workspace.id === currentId)) {
+          options.push(h('option', { key: currentId, value: currentId }, currentId));
+        }
+        return options;
+      }
+
+      /** @returns the display label for one workspace id. */
+      function workspaceLabel(id) {
+        const found = workspaceList.find((workspace) => workspace.id === id);
+        if (found === undefined || found === null) return id;
+        return found.title || found.path || found.id;
+      }
+
+      /**
+       * The task's own workspace, next to Model / Thinking level / Agent.
+       *
+       * With no registry the field is absent rather than broken, and the draft
+       * keeps whatever id the task carried, so a save cannot clear a value the
+       * user was never shown.
+       *
+       * @returns A field element, or null when there is no registry to pick from.
+       */
+      function taskWorkspaceField() {
+        if (workspaceList.length === 0) return null;
+        return formField(t('field.workspace'), h('select', {
+          key: 'task-workspace', className: 'st-input', value: draft.workspaceId,
+          onChange: (event) => patch({ workspaceId: event.target.value }),
+        }, workspaceOptions(t('option.inheritWorkspace'), draft.workspaceId)),
+        t('field.workspaceHint'), 'task-workspace');
+      }
+
+      /**
+       * The muted line under the model name.
+       *
+       * The workspace appears only when the task names its own and it differs
+       * from the plugin default — an inherited workspace is the common case and
+       * does not need repeating on every row. Suppressed until the settings are
+       * loaded, so the line never claims a difference it cannot yet check.
+       */
+      function rowMeta(task) {
+        const parts = targetMetaParts(task.target, t);
+        const own = typeof task.workspaceId === 'string' ? task.workspaceId : '';
+        const known = settings.status === 'ready'
+          && settings.value !== null && settings.value !== undefined
+          && typeof settings.value.workspaceId === 'string';
+        if (own.length > 0 && known && own !== settings.value.workspaceId) {
+          parts.push(`${t('field.workspace')}: ${workspaceLabel(own)}`);
+        }
+        return parts.length === 0 ? t('target.inherited') : parts.join(' · ');
+      }
+
       // --- render: list --------------------------------------------------
 
       function renderRow(task) {
         const deleting = pendingDelete === task.id;
         const schedule = scheduleSummary(task.schedule, t);
         const model = modelLabel(task.target, t);
-        const meta = targetMeta(task.target, t);
+        const meta = rowMeta(task);
         return h('tr', {
           key: task.id,
           className: task.enabled === true ? 'st-row' : 'st-row st-row-disabled',
@@ -1941,6 +2027,8 @@ window.__ModuleLoader__.load({
           children.push(timezoneField());
         }
 
+        const workspaceField = taskWorkspaceField();
+        if (workspaceField !== null) children.push(workspaceField);
         children.push(...modelPickerFields(draft, patch));
         children.push(agentPickerField(draft, patch));
 
@@ -1986,21 +2074,11 @@ window.__ModuleLoader__.load({
         }
 
         if (workspaceList.length > 0) {
-          const workspaceOptions = [h('option', { key: '', value: '' }, t('option.noWorkspace'))];
-          for (const workspace of workspaceList) {
-            const label = workspace.title || workspace.path || workspace.id;
-            workspaceOptions.push(h('option', { key: workspace.id, value: workspace.id }, label));
-          }
-          // Keep a stored workspace the registry no longer lists selectable, so
-          // opening the tab cannot silently drop it.
-          if (value.workspaceId.length > 0
-              && !workspaceList.some((workspace) => workspace.id === value.workspaceId)) {
-            workspaceOptions.push(h('option', { key: value.workspaceId, value: value.workspaceId }, value.workspaceId));
-          }
           children.push(formField(t('settings.workspace'), h('select', {
             key: 'workspace', className: 'st-input', value: value.workspaceId,
             onChange: (event) => patchSettings({ workspaceId: event.target.value }),
-          }, workspaceOptions), t('settings.workspaceHint'), 'workspace'));
+          }, workspaceOptions(t('option.noWorkspace'), value.workspaceId)),
+          t('settings.workspaceHint'), 'workspace'));
         }
         // With no registry the control is absent and `workspaceId` stays as
         // loaded, so saving leaves whatever is stored alone rather than

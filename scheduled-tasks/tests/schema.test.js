@@ -38,6 +38,7 @@ const TASK = {
     weekdays: [1, 2, 3, 4, 5],
   },
   target: { provider: 'gaia-local', model: 'Spark', effort: 'medium', preset: '' },
+  workspaceId: '',
   createdAt: '2026-10-07T15:24:00.000Z',
   updatedAt: '2026-10-07T15:24:00.000Z',
   lastRun: null,
@@ -91,6 +92,13 @@ describe('the editor\'s payloads', () => {
     assert.deepEqual(parsed.target, {});
   });
 
+  it('carries a workspace on create and update', () => {
+    assert.equal(createRequest.parse({
+      prompt: 'p', rule: RULES.daily, workspaceId: 'ws-1',
+    }).workspaceId, 'ws-1');
+    assert.equal(updateRequest.parse({ id: 'task-1', workspaceId: 'ws-2' }).workspaceId, 'ws-2');
+  });
+
   it('accepts the update body, which carries the rule on every save', () => {
     const parsed = updateRequest.parse({
       id: 'task-1',
@@ -142,6 +150,13 @@ describe('the durable record', () => {
       }
       assert.doesNotThrow(() => taskRecord.parse({ ...TASK, schedule }), rule.kind);
     }
+  });
+
+  it('accepts a task that names its own workspace, and one that inherits', () => {
+    const owned = taskRecord.parse({ ...TASK, workspaceId: 'ws-1' });
+    assert.equal(owned.workspaceId, 'ws-1');
+    const { workspaceId, ...withoutField } = TASK;
+    assert.equal(taskRecord.parse(withoutField).workspaceId, '', 'an older task inherits');
   });
 
   it('rejects a task with no prompt', () => {

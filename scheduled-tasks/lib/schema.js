@@ -53,6 +53,9 @@ export const taskRecord = z.object({
   enabled: z.boolean(),
   schedule: scheduleRecord,
   target: runTarget,
+  // Defaulted, not required: a task stored before this field existed must still
+  // load, or an upgrade would strand it.
+  workspaceId: z.string().default(''),
   createdAt: z.string(),
   updatedAt: z.string(),
   lastRun: runRecord.nullable(),
@@ -96,6 +99,7 @@ export const createRequest = z.object({
   rule: ruleInput,
   target: targetInput.optional(),
   enabled: z.boolean().optional(),
+  workspaceId: z.string().optional(),
   cwd: z.string().optional(),
 });
 
@@ -107,6 +111,7 @@ export const updateRequest = z.object({
   rule: ruleInput.optional(),
   target: targetInput.optional(),
   enabled: z.boolean().optional(),
+  workspaceId: z.string().optional(),
 });
 
 /** `scheduledTasks.delete` */

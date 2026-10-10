@@ -42,29 +42,48 @@ export function apply(ctx) {
   const settings = () => store.settings();
 
   /**
+   * Whether a workspace id still names a registered workspace.
+   * @param id - Candidate workspace id.
+   * @returns True when the registry knows it.
+   */
+  function known(id) {
+    return id !== '' && ctx.workspaceRegistry.get(id) !== undefined;
+  }
+
+  /**
+   * Which workspace owns a directory, when one does.
+   * @param directory - An existing directory path.
+   * @returns The workspace id, or undefined.
+   */
+  async function ownerOf(directory) {
+    try {
+      const owner = await ctx.workspaceRegistry.resolveByPath(directory);
+      return owner === undefined ? undefined : owner.id;
+    } catch {
+      // The directory does not exist; the plain cwd placement still works.
+      return undefined;
+    }
+  }
+
+  /**
    * Place a run's session.
    *
    * A workspace attaches the session to that project, so the sidebar groups it
-   * there instead of listing it as ungrouped. A chosen workspace wins; with
-   * none chosen, the directory is matched against the registry so a run in an
-   * already-known project still groups. A stale id or an unknown directory
+   * there instead of listing it as ungrouped. The task's own choice wins, then
+   * its directory, then the plugin defaults — and a default directory that a
+   * workspace already owns resolves to that workspace, so a run lands in the
+   * right project without anyone choosing. A stale id or an unknown directory
    * falls back to the plain directory rather than failing the run.
-   * @param current - The current settings.
+   * @param job - The task being run.
+   * @param current - The current plugin settings.
    * @returns The placement `sessionController.create` accepts.
    */
-  async function placement(current) {
-    if (current.workspaceId !== '') {
-      if (ctx.workspaceRegistry.get(current.workspaceId) !== undefined) {
-        return { workspaceId: current.workspaceId };
-      }
-    } else {
-      try {
-        const owner = await ctx.workspaceRegistry.resolveByPath(current.cwd);
-        if (owner !== undefined) return { workspaceId: owner.id };
-      } catch {
-        // The directory does not exist; the plain cwd placement still works.
-      }
-    }
+  async function placement(job, current) {
+    if (known(job.workspaceId)) return { workspaceId: job.workspaceId };
+    if (job.cwd !== undefined) return { cwd: job.cwd };
+    if (known(current.workspaceId)) return { workspaceId: current.workspaceId };
+    const owner = await ownerOf(current.cwd);
+    if (owner !== undefined) return { workspaceId: owner };
     return { cwd: current.cwd };
   }
 

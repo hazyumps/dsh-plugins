@@ -20,7 +20,7 @@ import { randomUUID } from 'node:crypto';
  * @param options.settings - `() => { cwd, workspaceId }`, read when a run
  *   starts so a settings change applies to the next run rather than the next
  *   reload.
- * @param options.placement - `async (settings) => { workspaceId } | { cwd }`,
+ * @param options.placement - `async (job, settings) => { workspaceId } | { cwd }`,
  *   the session's placement. A workspace attaches the session to that project,
  *   so it is grouped in the sidebar instead of landing ungrouped.
  * @param options.logger - Host logger.
@@ -32,8 +32,7 @@ export function createRunner(options) {
   return async function run(job) {
     const { target, schedule, title } = job;
     const { sessionId } = await sessionController.create({
-      // A task that names its own directory overrides the workspace setting.
-      ...(job.cwd === undefined ? await placement(settings()) : { cwd: job.cwd }),
+      ...(await placement(job, settings())),
       ...(target.preset === '' ? {} : { agentPreset: target.preset }),
     });
 

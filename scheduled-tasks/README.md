@@ -21,6 +21,7 @@ stored tasks.
 | Model | Provider and model, from the Host's own model catalog |
 | Thinking level | The model's reasoning effort; hidden for models without one |
 | Agent | The agent preset the run's session is mounted with |
+| Workspace | Which project the run's session joins. **Inherit the plugin setting** by default; a task that names its own wins. |
 | Prompt | Sent verbatim when the run starts |
 | Enabled | A disabled task keeps its history and stops firing |
 
@@ -42,6 +43,7 @@ new task inherits:
 
 | Key | Default | Meaning |
 |---|---|---|
+| `workspaceId` | none | The workspace a run joins when its task does not name one. A session only groups under a project when it is created with a workspace, which is why this exists separately from the directory. |
 | `cwd` | your home directory | Working directory, and therefore the workspace, of every run. Set this to the repository a run belongs to. |
 | `provider`, `model`, `effort`, `preset` | empty | Used when the editor leaves a target field blank. |
 | `importFromScheduler` | off | Carries DSH's own Automation tasks across once, the first time it is switched on with an empty list. A stored task this plugin cannot express — a one-shot delay — is skipped and logged. |
@@ -51,6 +53,19 @@ an empty task list, so it can neither duplicate nor overwrite anything.
 
 Settings live in the plugin's own document, not in the profile patch, because a
 plugin cannot ship a `Config` schema — see the note on dependencies below.
+
+### Where a run lands
+
+Resolved per run, first match wins:
+
+1. the task's own workspace;
+2. the task's own directory, if it names one;
+3. the plugin's workspace setting;
+4. the plugin's directory, **if a workspace already owns it** — so a run in a
+   known project groups correctly with nothing chosen;
+5. the plugin's directory, ungrouped.
+
+A workspace id that no longer resolves is skipped rather than failing the run.
 
 ## How it works
 

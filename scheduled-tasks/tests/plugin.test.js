@@ -338,6 +338,42 @@ describe('a run', () => {
     assert.deepEqual(harness.calls.create, [{ cwd: '/tmp/not-a-project' }]);
   });
 
+  it('lets a task choose its own workspace, over the plugin default', async () => {
+    const harness = createHarness();
+    const service = await mount(harness, { workspaceId: '', cwd: '/tmp/not-a-project' });
+    const { task } = await service.create({ ...CREATE, workspaceId: 'ws-1' });
+    assert.equal(task.workspaceId, 'ws-1');
+    await service.runNow({ id: task.id });
+    assert.deepEqual(harness.calls.create, [{ workspaceId: 'ws-1' }]);
+  });
+
+  it('inherits the plugin workspace when the task names none', async () => {
+    const harness = createHarness();
+    const service = await mount(harness, { workspaceId: 'ws-1', cwd: '/tmp/not-a-project' });
+    const { task } = await service.create(CREATE);
+    assert.equal(task.workspaceId, '');
+    await service.runNow({ id: task.id });
+    assert.deepEqual(harness.calls.create, [{ workspaceId: 'ws-1' }]);
+  });
+
+  it('ignores a task workspace that no longer exists', async () => {
+    const harness = createHarness();
+    const service = await mount(harness, { workspaceId: '', cwd: '/tmp/not-a-project' });
+    const { task } = await service.create({ ...CREATE, workspaceId: 'ws-gone' });
+    await service.runNow({ id: task.id });
+    assert.deepEqual(harness.calls.create, [{ cwd: '/tmp/not-a-project' }]);
+  });
+
+  it('can clear a task workspace on update', async () => {
+    const harness = createHarness();
+    const service = await mount(harness, { cwd: '/tmp/not-a-project' });
+    const { task } = await service.create({ ...CREATE, workspaceId: 'ws-1' });
+    const { task: cleared } = await service.update({ id: task.id, workspaceId: '' });
+    assert.equal(cleared.workspaceId, '');
+    const { task: kept } = await service.update({ id: task.id, title: 'Renamed' });
+    assert.equal(kept.workspaceId, '');
+  });
+
   it('prefers a chosen workspace, and ignores a stale one', async () => {
     const chosen = createHarness();
     const chosenService = await mount(chosen, { workspaceId: 'ws-1', cwd: '/tmp/not-a-project' });
